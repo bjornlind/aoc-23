@@ -2,10 +2,10 @@ cc = gcc
 CFLAGS = -g
 
 output: main.o
-	$(cc) $(CFLAGS) main.o -o main
+	$(cc) $(CFLAGS) main.o -o main.elf
 
 main: main.c
 	$(cc) $(CFLAGS) -c main.c
 
 clean:
-	rm -f *.o main
+	rm -f *.o *.elf
