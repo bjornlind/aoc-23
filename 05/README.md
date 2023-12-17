@@ -1,0 +1,3 @@
+- Sort the mappings
+- Find the right mapping using binary search
+- Reuse previous mapping if new seed falls within it
