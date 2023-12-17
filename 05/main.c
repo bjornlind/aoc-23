@@ -136,9 +136,6 @@ int main(int argc, char* argv[])
     long nbrSeedsProblem1 = ParseSeeds(seedsLine, seeds);
     fgets(seedsLine, sizeof(seedsLine), f);
 
-    // Parse seeds problem 2
-
-
     // Parse mappings
     while(!feof(f))
     {
@@ -158,26 +155,8 @@ int main(int argc, char* argv[])
     //     }    
     // }
 
-    long lowestLocProblem1 = Solve(seeds, nbrSeedsProblem1, mapGroups, mapGroupIdx);
-
-    long lowestLocProblem2 = -1;
-
-    for (size_t i = 0; i < nbrSeedsProblem1; i+=2)
-    {
-        long firstSeed = seeds[i];
-        long nbrSeeds = seeds[i+1];
-
-        for (size_t j = 0; j < nbrSeeds; j++)
-        {
-            long seed = firstSeed + j;
-            long loc = Solve(&seed, 1, mapGroups, mapGroupIdx);
-            lowestLocProblem2 = (lowestLocProblem2 < 0 || loc < lowestLocProblem2) ? loc : lowestLocProblem2;
-        }
-        
-    }
-    
+    long lowestLocProblem1 = Solve(seeds, nbrSeedsProblem1, mapGroups, mapGroupIdx);    
     printf("Problem 1: Lowest location number = %ld\n", lowestLocProblem1);
-    printf("Problem 2: Lowest location number = %ld\n", lowestLocProblem2);
     
     fclose(f);
 }
