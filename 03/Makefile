@@ -2,7 +2,7 @@ cc = gcc
 CFLAGS = -g
 
 output: main.o
-	$(cc) $(CFLAGS) main.o -o main.elf
+	$(cc) $(CFLAGS) main.o -o main.elf -lm
 
 main: main.c
 	$(cc) $(CFLAGS) -c main.c
