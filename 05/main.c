@@ -86,39 +86,30 @@ void ParseMapGroup(FILE *f, MapGroup *mapGroup)
 
     mapGroup->maps = maps;
     mapGroup->size = mapIdx;
-
-    // for (size_t i = 0; i < mapGroup->size; i++)
-    // {
-    //     printf("%ld %ld %d\n", mapGroup->maps[i].source, mapGroup->maps[i].dest, mapGroup->maps[i].length);
-    // }
-
-    // printf("\n");
 }
 
-void printArray(long *arr, size_t length, char delim)
+Map* FindMapByBinarySearch(MapGroup mg, long seed)
 {
-    for (size_t i = 0; i < length; i++)
+    int lowIdx = 0;
+    int highIdx = mg.size - 1;
+  
+    while(lowIdx <= highIdx)
     {
-        printf("%ld", *(arr+i));
-        if(i < length - 1)
-        {
-            printf("%c", delim);
-        }
-    }
-}
+        int mid = lowIdx + (highIdx - lowIdx) / 2;
 
-Map* FindMap(MapGroup mg, long seed)
-{
-    // printf("\tLooking for mapping for seed %ld in map group %d\n", seed, mg.idx);
-    
-    for (size_t i = 0; i < mg.size; i++)
-    {
-        Map *m = mg.maps + i;
-        // printf("\t\tAnalyzing map: Src= %ld, Dst= %ld, Len= %d\n", m->source, m->dest, m->length);
-        if(seed >= m->source && seed < m->source + m->length)
+        Map *m = mg.maps + mid;
+        if(seed >= m->source && seed < (m->source + m->length))
         {
-            // printf("\tFound mapping: Src = %ld, Dst = %ld, Len = %d\n", m->source, m->dest, m->length);
             return m;
+        }
+
+        if(seed < m->source)
+        {
+            highIdx = mid - 1;
+        }
+        else
+        {
+            lowIdx = mid + 1;
         }
     }
 
@@ -137,20 +128,17 @@ long Solve(long *seeds, long nbrSeeds, MapGroup *mapGroups, int nbrMapGroups)
     for (size_t i = 0; i < nbrSeeds; i++)
     {
         long loc = seeds[i];
-        // printf("Mapping seed %ld:\n", loc);
 
         for (size_t j = 0; j < nbrMapGroups; j++)
         {
-            Map *m = FindMap(*(mapGroups+j), loc);
-            
+            Map *m = FindMapByBinarySearch(*(mapGroups+j), loc);
+
             long diff = loc - m->source;
             long mapping = m->dest + diff;
-            // printf("\t%d: Mapped %ld to %ld\n\n", j, loc, mapping);
             loc = mapping;
         }
         
-        minloc = (minloc < 0 || minloc > loc) ? loc : minloc; 
-        // printf("\tSeed %ld -> Location %ld\n", seeds[i], loc);
+        minloc = (minloc < 0 || minloc > loc) ? loc : minloc;
     }
 
     return minloc;
@@ -165,7 +153,7 @@ int main(int argc, char* argv[])
 
     FILE *f = fopen(argv[1], "r");
 
-    // Parse seeds problem 1
+    // Parse seeds
     fgets(seedsLine, sizeof(seedsLine), f);
     long nbrSeedsProblem1 = ParseSeeds(seedsLine, seeds);
     fgets(seedsLine, sizeof(seedsLine), f);
@@ -178,19 +166,27 @@ int main(int argc, char* argv[])
         mapGroupIdx++;
     }
 
-    // for (size_t i = 0; i < mapGroupIdx; i++)
-    // {
-    //     printf("Map group %d:\n", i);
-    //     printf("\t%d maps:\n", mapGroups[i].size);
-    //     for (size_t j = 0; j < mapGroups[i].size; j++)
-    //     {
-    //         Map *m = mapGroups[i].maps+j;
-    //         printf("\t\tSource: %ld,\t Dest: %ld,\t Length: %d\n", m->source, m->dest, m->length);
-    //     }    
-    // }
+    // Solve problem 1:
+    long lowestLocProblem1 = Solve(seeds, nbrSeedsProblem1, mapGroups, mapGroupIdx);
 
-    long lowestLocProblem1 = Solve(seeds, nbrSeedsProblem1, mapGroups, mapGroupIdx);    
-    printf("Problem 1: Lowest location number = %ld\n", lowestLocProblem1);
+    // Solve problem 2:
+    long lowestLocProblem2 = -1;
+
+    for (size_t i = 0; i < nbrSeedsProblem1; i+=2)
+    {
+        long firstSeed = seeds[i];
+        long nbrSeeds = seeds[i+1];
+
+        for (size_t j = 0; j < nbrSeeds; j++)
+        {
+            long seed = firstSeed + j;
+            long loc = Solve(&seed, 1, mapGroups, mapGroupIdx);
+            lowestLocProblem2 = (lowestLocProblem2 < 0 || loc < lowestLocProblem2) ? loc : lowestLocProblem2;
+        }
+        
+    }
     
+    printf("Problem 1: Lowest location number = %ld\n", lowestLocProblem1);
+    printf("Problem 2: Lowest location number = %ld\n", lowestLocProblem2);
     fclose(f);
 }
