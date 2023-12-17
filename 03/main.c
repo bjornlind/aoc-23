@@ -44,7 +44,7 @@ bool CheckCurrentLine(int idx, char* line)
 
         if(isValid(cL))
         {
-            printf("Char to the left is valid: %c\n", cL);
+            // printf("Char to the left is valid: %c\n", cL);
             return true;
         }
     }
@@ -121,7 +121,7 @@ void SolveProblem1(char* prevLine, char* currLine, char* nextLine)
                     // Extract the number
                     int nbr = extractNbr(currNbrIdx, currNbrs);
                     sumProblem1 += nbr;
-                    printf("%d should be included!\n", nbr);                       
+                    // printf("%d should be included!\n", nbr);                       
                 }
             }
 
@@ -136,11 +136,177 @@ void SolveProblem1(char* prevLine, char* currLine, char* nextLine)
     }
 }
 
+int findWholeNumber(int idx, char* line)
+{
+    int startIdx = idx;
+    int endIdx = idx;
+    
+    // find start idx
+    while(startIdx > 0 && isdigit(line[startIdx-1]))
+    {
+        startIdx--;
+    }
+
+    // find end idx
+    while(line[endIdx+1] != '\n' && line[endIdx+1] != EOF && isdigit(line[endIdx+1]))
+    {
+        endIdx++;
+    }
+
+    int arr[endIdx-startIdx+1];
+
+    for (size_t i = startIdx; i <= endIdx; i++)
+    {
+        arr[i-startIdx] = (int) line[i] - '0';
+    }
+
+    int nbr = extractNbr(endIdx-startIdx+1, arr);
+    // printf("Found %d in %s", nbr, line);
+    return nbr;    
+}
+
+int FindGearNumber(int idx, char* prevLine, char* currLine, char* nextLine)
+{
+    int num1 = -1;
+    int num2 = -1;
+
+    // Check previous line
+    if(line > 1)
+    {
+        if(isdigit(prevLine[idx]))
+        {
+            // Straight above
+            num1 = findWholeNumber(idx, prevLine);
+        }
+        else
+        {
+            if(idx > 0 && isdigit(prevLine[idx-1]))
+            {
+                // Above to the left
+                int num = findWholeNumber(idx-1, prevLine);
+                if(num1 < 0)
+                {
+                    num1 = num;
+                }
+                else if (num2 < 0)
+                {
+                    num2 = num;
+                }
+            }
+            
+            if(isdigit(prevLine[idx+1]))
+            {
+                // Above to the right
+                int num = findWholeNumber(idx+1, prevLine);
+                if(num1 < 0)
+                {
+                    num1 = num;
+                }
+                else if (num2 < 0)
+                {
+                    num2 = num;
+                }
+            }
+        }
+    }
+
+    // Check left
+    if(idx > 0 && isdigit(currLine[idx-1]))
+    {
+        int num = findWholeNumber(idx-1, currLine);
+        if(num1 < 0)
+        {
+            num1 = num;
+        }
+        else if (num2 < 0)
+        {
+            num2 = num;
+        }
+    }
+
+    // Check right
+    if(isdigit(currLine[idx+1]))
+    {
+        int num = findWholeNumber(idx+1, currLine);
+        if(num1 < 0)
+        {
+            num1 = num;
+        }
+        else if (num2 < 0)
+        {
+            num2 = num;
+        }
+    }
+
+    // Check below
+    if(!finalLine)
+    {
+        if(isdigit(nextLine[idx]))
+        {
+            // Straight below
+            int num = findWholeNumber(idx, nextLine);
+            if(num1 < 0)
+            {
+                num1 = num;
+            }
+            else if (num2 < 0)
+            {
+                num2 = num;
+            }
+        }
+        else
+        {
+            if(idx > 0 && isdigit(nextLine[idx-1]))
+            {
+                // Below to the left
+                int num = findWholeNumber(idx-1, nextLine);
+                if(num1 < 0)
+                {
+                    num1 = num;
+                }
+                else if (num2 < 0)
+                {
+                    num2 = num;
+                }              
+            }
+
+            if(isdigit(nextLine[idx+1]))
+            {
+                // Below to the right
+                int num = findWholeNumber(idx+1, nextLine);
+                if(num1 < 0)
+                {
+                    num1 = num;
+                }
+                else if (num2 < 0)
+                {
+                    num2 = num;
+                }
+            }
+        }
+    }
+
+    if(num1 > -1 && num2 > -1)
+    {
+        return num1 * num2;
+    }
+
+    return -1;
+}
+
 void SolveProblem2(char* prevLine, char* currLine, char* nextLine)
 {
     for (size_t i = 0; i < nCOL; i++)
     {
         if(currLine[i] == '*')
+        {
+            int g = FindGearNumber(i, prevLine, currLine, nextLine);
+            if(g > -1)
+            {
+                sumProblem2 += g;
+                // printf("Found gear number %d on line %d\n", g, line);   
+            }
+        }
     }
 }
 
@@ -175,6 +341,7 @@ void Solve()
     }
 
     printf("Problem 1 sum = %d\n", sumProblem1);
+    printf("Problem 2 sum = %d\n", sumProblem2);
 }
 
 
