@@ -50,15 +50,49 @@ void ParseMapGroup(FILE *f, MapGroup *mapGroup)
 
         if(isdigit(line[0]))
         {
-            // printf("Extracting mapping from: %s", line);
-            sscanf(line, "%ld%ld%d", &maps[mapIdx].dest, &maps[mapIdx].source, &maps[mapIdx].length);
-            // printf("\t-> %ld %ld %d\n", maps[mapIdx].dest, maps[mapIdx].source, maps[mapIdx].length);
+            Map *m = (Map*)malloc(sizeof(Map));
+            sscanf(line, "%ld%ld%d", &m->dest, &m->source, &m->length);
             mapIdx++;
+
+            // Insert mapping into mappings array, keeping it sorted by the source
+            int idx = 0;
+
+            // Find which index to insert the mapping into:
+            for (size_t i = 1; i < mapIdx; i++)
+            {   
+                Map *mapInArr = &maps[i-1];
+                if(m->source < mapInArr->source)
+                {
+                    idx = i-1;
+                    break;
+                }
+                
+                idx++;
+            }
+
+            if(idx < mapIdx - 1)
+            {
+                // Move all elements in larger indices to the right by one position:
+                for (size_t i = mapIdx; i > idx; i--)
+                {
+                    maps[i] = maps[i-1];
+                }
+            }
+
+            // Insert the new mapping:
+            maps[idx] = *m;            
         }
-    }
+    }    
 
     mapGroup->maps = maps;
     mapGroup->size = mapIdx;
+
+    // for (size_t i = 0; i < mapGroup->size; i++)
+    // {
+    //     printf("%ld %ld %d\n", mapGroup->maps[i].source, mapGroup->maps[i].dest, mapGroup->maps[i].length);
+    // }
+
+    // printf("\n");
 }
 
 void printArray(long *arr, size_t length, char delim)
