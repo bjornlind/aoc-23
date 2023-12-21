@@ -45,4 +45,6 @@ int main(int argc, char* args[])
     
     printf("Problem 1: %d\n", sum1);
     printf("Problem 2: %d\n", sum2);
+
+    return 0;
 }
