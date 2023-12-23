@@ -47,19 +47,20 @@ int main(int argc, char const *argv[])
     while(fgets(lineStr, sizeof(lineStr), f) != NULL)
     {
         // Parse line into array
-        int numbersOrig[20];
+        int numbers[20];
         int nbrNumbers = 0;
 
         char *token = strtok(lineStr, " ");
 
         while(token != NULL)
         {
-            sscanf(token, "%d", &numbersOrig[nbrNumbers++]);
+            sscanf(token, "%d", &numbers[nbrNumbers++]);
             token = strtok(NULL, " ");
         }
 
-        int nextNumberProb1 = FindNextValue(nbrNumbers, numbersOrig, 1);
-        int nextNumberProb2 = FindNextValue(nbrNumbers, numbersOrig, 2);
+        // Calculate next value for each problem
+        int nextNumberProb1 = FindNextValue(nbrNumbers, numbers, 1);
+        int nextNumberProb2 = FindNextValue(nbrNumbers, numbers, 2);
         
         sumProb1 += nextNumberProb1;
         sumProb2 += nextNumberProb2;
@@ -67,5 +68,6 @@ int main(int argc, char const *argv[])
 
     printf("Sum problem 1 = %d\n", sumProb1);
     printf("Sum problem 2 = %d\n", sumProb2);
+    fclose(f);
     return 0;
 }
